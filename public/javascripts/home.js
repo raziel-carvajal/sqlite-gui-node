@@ -1,8 +1,8 @@
-let tablename;
+let tablename, path = localStorage.getItem('path');
 
 async function fetchData() {
   try {
-    const response = await fetch("/api/tables");
+    const response = await fetch(`${path}/api/tables`);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -45,7 +45,7 @@ function populateSidebar(tables) {
 
 async function fetchTableData(tableName) {
   try {
-    const response = await fetch(`/api/tables/${tableName}`);
+    const response = await fetch(`${path}/api/tables/${tableName}`);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -70,7 +70,7 @@ function displayTableData(data) {
   insertButton.textContent = "Insert";
   insertButton.classList.add("insert_btn");
   insertButton.onclick = () => {
-    window.location.href = `/insert/${tablename}`;
+    window.location.href = `${path}/insert/${tablename}`;
   };
   headerDiv.appendChild(insertButton);
 
@@ -79,7 +79,7 @@ function displayTableData(data) {
   deleteButton.classList.add("delete_btn");
   deleteButton.onclick = () => {
     if (window.confirm("Are you sure you want to delete this table")) {
-      fetch("/api/tables/table/delete", {
+      fetch(`${path}/api/tables/table/delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -182,23 +182,23 @@ function displayTableData(data) {
       const fixedTr = document.createElement("tr");
       const editTd = document.createElement("td");
       const editIcon = document.createElement("img");
-      editIcon.src = "./icons/edit.svg";
+      editIcon.src = "/icons/edit.svg";
       editIcon.classList.add("action-icon");
       editIcon.style.height = "2vh";
       editIcon.onclick = () => {
-        window.location.href = `/edit/${tablename}/${id_name}/${row[id_name]}`;
+        window.location.href = `${path}/edit/${tablename}/${id_name}/${row[id_name]}`;
       };
       editTd.appendChild(editIcon);
       fixedTr.appendChild(editTd);
 
       const deleteTd = document.createElement("td");
       const deleteIcon = document.createElement("img");
-      deleteIcon.src = "./icons/delete.svg";
+      deleteIcon.src = "/icons/delete.svg";
       deleteIcon.classList.add("action-icon");
       deleteIcon.style.height = "2vh";
       deleteIcon.onclick = () => {
         if (window.confirm("Are you sure you want to delete this row")) {
-          fetch("/api/tables/delete", {
+          fetch(`${path}/api/tables/delete`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

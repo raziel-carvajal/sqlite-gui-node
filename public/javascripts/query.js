@@ -1,6 +1,8 @@
+let path = localStorage.getItem('path');
+
 async function fetchData() {
   try {
-    const response = await fetch("/api/tables/local/query");
+    const response = await fetch(`${path}/api/tables/local/query`);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -44,7 +46,7 @@ async function createForm() {
       return;
     }
     try {
-      const response = await fetch("/api/tables/local/query", {
+      const response = await fetch(`${path}/api/tables/local/query`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +78,7 @@ async function createForm() {
     tableBody.innerHTML = "";
     resultParagraph.textContent = "";
 
-    fetch("/api/tables/query", {
+    fetch(`${path}/api/tables/query`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

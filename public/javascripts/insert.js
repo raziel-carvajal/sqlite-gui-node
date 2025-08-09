@@ -1,4 +1,4 @@
-let tablename;
+let tablename, path = localStorage.getItem('path');
 
 document.addEventListener("DOMContentLoaded", async () => {
   const tableName = window.location.pathname.split("/").pop();
@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function fetchTableInfos(tableName) {
   try {
-    const response = await fetch(`/api/tables/infos/${tableName}`); // Correct endpoint
+    const response = await fetch(`${path}/api/tables/infos/${tableName}`); // Correct endpoint
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -114,7 +114,7 @@ function displayTableData(fields) {
     });
 
     try {
-      const response = await fetch("/api/tables/insert", {
+      const response = await fetch(`${path}/api/tables/insert`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +127,7 @@ function displayTableData(fields) {
       }
 
       // Handle response if needed
-      window.location.href = `/home`;
+      window.location.href = `${path}/home`;
     } catch (error) {
       console.error(error);
       alert(
@@ -154,7 +154,7 @@ function displayTableData(fields) {
     });
 
     try {
-      const response = await fetch("/api/tables/generate/insert", {
+      const response = await fetch(`${path}/api/tables/generate/insert`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

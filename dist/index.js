@@ -19,6 +19,7 @@ const path_1 = __importDefault(require("path"));
 const databaseFunctions_1 = __importDefault(require("./Utils/databaseFunctions"));
 const logger_1 = __importDefault(require("./Utils/logger"));
 const tables_1 = __importDefault(require("./routes/tables"));
+const env_vars_1 = require("./config/env-vars");
 const app = (0, express_1.default)();
 app.set("view engine", "ejs");
 app.set("views", path_1.default.join(__dirname, "../views"));
@@ -26,29 +27,29 @@ app.use(body_parser_1.default.urlencoded({ extended: false }));
 app.use(express_1.default.static(path_1.default.join(__dirname, "../public")));
 app.use(body_parser_1.default.json());
 // Routes
-app.get("/query", (req, res) => {
-    res.render("query", { title: "Query Page" });
+app.get(`${env_vars_1.EXPRESS_APP_PATH}/query`, (req, res) => {
+    res.render("query", { title: "Query Page", path: env_vars_1.EXPRESS_APP_PATH });
 });
-app.get("/home", (req, res) => {
-    res.render("index", { title: "Home Page" });
+app.get(`${env_vars_1.EXPRESS_APP_PATH}/home`, (req, res) => {
+    res.render("index", { path: env_vars_1.EXPRESS_APP_PATH });
 });
-app.get("/createtable", (req, res) => {
-    res.render("createTable", { title: "Create Table Page" });
+app.get(`${env_vars_1.EXPRESS_APP_PATH}/createtable`, (req, res) => {
+    res.render("createTable", { title: "Create Table Page", path: env_vars_1.EXPRESS_APP_PATH });
 });
-app.get("/insert/:table", (req, res) => {
+app.get(`${env_vars_1.EXPRESS_APP_PATH}/insert/:table`, (req, res) => {
     const tableName = req.params.table;
-    res.render("insert", { tableName });
+    res.render("insert", { tableName, path: env_vars_1.EXPRESS_APP_PATH });
 });
-app.get("/edit/:table/:label/:id", (req, res) => {
+app.get(`${env_vars_1.EXPRESS_APP_PATH}/edit/:table/:label/:id`, (req, res) => {
     const tableName = req.params.table;
     const id = req.params.id;
-    res.render("edit", { tableName, id });
+    res.render("edit", { tableName, id, path: env_vars_1.EXPRESS_APP_PATH });
 });
 // SqliteGuiNode function to run the app
 function SqliteGuiNode(db_1) {
     return __awaiter(this, arguments, void 0, function* (db, port = 8080) {
         yield databaseFunctions_1.default.InitializeDB(db);
-        app.use("/api/tables", (0, tables_1.default)(db));
+        app.use(`${env_vars_1.EXPRESS_APP_PATH}/api/tables`, (0, tables_1.default)(db));
         app.listen(port, () => {
             logger_1.default.info(`SQLite Web Admin Tool running at http://localhost:${port}/home`);
         });
@@ -67,27 +68,27 @@ function SqliteGuiNodeMiddleware(app, db) {
                 app.use(express_1.default.static(path_1.default.join(__dirname, "../public")));
                 app.use(body_parser_1.default.json());
                 // Routes
-                app.get("/query", (req, res) => {
-                    res.render("query", { title: "Query Page" });
+                app.get(`${env_vars_1.EXPRESS_APP_PATH}/query`, (req, res) => {
+                    res.render("query", { title: "Query Page", path: env_vars_1.EXPRESS_APP_PATH });
                 });
-                app.get("/", (req, res) => {
-                    res.render("index", { title: "Home Page" });
+                app.get(env_vars_1.EXPRESS_APP_PATH, (req, res) => {
+                    res.render("index", { path: env_vars_1.EXPRESS_APP_PATH });
                 });
-                app.get("/createtable", (req, res) => {
-                    res.render("createTable", { title: "Create Table Page" });
+                app.get(`${env_vars_1.EXPRESS_APP_PATH}/createtable`, (req, res) => {
+                    res.render("createTable", { title: "Create Table Page", path: env_vars_1.EXPRESS_APP_PATH });
                 });
-                app.get("/insert/:table", (req, res) => {
+                app.get(`${env_vars_1.EXPRESS_APP_PATH}/insert/:table`, (req, res) => {
                     const tableName = req.params.table;
-                    res.render("insert", { tableName });
+                    res.render("insert", { tableName, path: env_vars_1.EXPRESS_APP_PATH });
                 });
-                app.get("/edit/:table/:label/:id", (req, res) => {
+                app.get(`${env_vars_1.EXPRESS_APP_PATH}/edit/:table/:label/:id`, (req, res) => {
                     const tableName = req.params.table;
                     const id = req.params.id;
-                    res.render("edit", { tableName, id });
+                    res.render("edit", { tableName, id, path: env_vars_1.EXPRESS_APP_PATH });
                 });
-                app.use("/api/tables", (0, tables_1.default)(db)); // Add table routes
-                app.get("/home", (req, res) => {
-                    res.render("index", { title: "Home Page" });
+                app.use(`${env_vars_1.EXPRESS_APP_PATH}/api/tables`, (0, tables_1.default)(db)); // Add table routes
+                app.get(`${env_vars_1.EXPRESS_APP_PATH}/home`, (req, res) => {
+                    res.render("index", { path: env_vars_1.EXPRESS_APP_PATH });
                 });
                 next(); // Proceed to the next middleware/route handler
             }

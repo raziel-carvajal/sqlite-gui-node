@@ -1,6 +1,7 @@
 let tablename;
 let userId;
 let id_label;
+let path = localStorage.getItem('path');
 
 document.addEventListener("DOMContentLoaded", async () => {
   const pathParts = window.location.pathname.split("/");
@@ -8,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   id_label = pathParts[3];
   userId = pathParts[4];
   const response = await fetch(
-    `/api/tables/getrecord/${tablename}/${id_label}/${userId}`
+    `${path}/api/tables/getrecord/${tablename}/${id_label}/${userId}`
   ); // Correct endpoint
   if (!response.ok) {
     throw new Error("Network response was not ok");
@@ -23,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function fetchTableInfos(tableName, dataObject) {
   try {
-    const response = await fetch(`/api/tables/infos/${tableName}`); // Correct endpoint
+    const response = await fetch(`${path}/api/tables/infos/${tableName}`); // Correct endpoint
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -148,7 +149,7 @@ function displayTableData(fields, dataObject) {
     });
 
     // Send POST request to API
-    fetch("/api/tables/update", {
+    fetch(`${path}/api/tables/update`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -159,7 +160,7 @@ function displayTableData(fields, dataObject) {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        window.location.href = `/home`;
+        window.location.href = `${path}/home`;
       })
       .catch((error) => {
         console.error("Error updating data:", error);
@@ -190,7 +191,7 @@ function displayTableData(fields, dataObject) {
     });
 
     try {
-      const response = await fetch("/api/tables/generate/update", {
+      const response = await fetch(`${path}/api/tables/generate/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
