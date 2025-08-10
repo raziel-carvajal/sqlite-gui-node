@@ -64,7 +64,6 @@ function InitializeDB(db) {
                                 reject(err);
                                 return;
                             }
-                            // resolve(); // No error, table created successfully
                         });
                         db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, password TEXT)", (err) => {
                             if (err) {

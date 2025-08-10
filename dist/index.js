@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqliteGuiNodeMiddleware = exports.SqliteGuiNode = void 0;
 const express_1 = __importDefault(require("express"));
-const body_parser_1 = __importDefault(require("body-parser"));
+// import bodyParser from "body-parser";
 const path_1 = __importDefault(require("path"));
 const databaseFunctions_1 = __importDefault(require("./Utils/databaseFunctions"));
 const logger_1 = __importDefault(require("./Utils/logger"));
@@ -25,9 +25,9 @@ const middlewares_1 = require("./middlewares");
 const app = (0, express_1.default)();
 app.set("view engine", "ejs");
 app.set("views", path_1.default.join(__dirname, "../views"));
-app.use(body_parser_1.default.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express_1.default.static(path_1.default.join(__dirname, "../public")));
-app.use(body_parser_1.default.json());
+// app.use(bodyParser.json());
 // Routes
 app.get(`${env_vars_1.EXPRESS_APP_PATH}/query`, (req, res) => {
     res.render("query", { title: "Query Page", path: env_vars_1.EXPRESS_APP_PATH });
@@ -67,9 +67,9 @@ function SqliteGuiNodeMiddleware(app, db) {
                 const session = require('express-session');
                 app.set("view engine", "ejs");
                 app.set("views", path_1.default.join(__dirname, "../views"));
-                app.use(body_parser_1.default.urlencoded({ extended: false }));
+                // app.use(bodyParser.urlencoded({ extended: false }));
                 app.use(express_1.default.static(path_1.default.join(__dirname, "../public")));
-                app.use(body_parser_1.default.json());
+                // app.use(bodyParser.json());
                 app.use(session({
                     secret: env_vars_1.EXPRESS_SESSION_SECRET,
                     resave: true,
