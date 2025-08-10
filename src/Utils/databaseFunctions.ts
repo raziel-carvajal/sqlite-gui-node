@@ -2,6 +2,8 @@ import logger from "./logger"; // Assuming logger is imported from a separate fi
 import * as fs from "fs";
 import * as path from "path";
 import { quoteColumn as q } from "./helpers";
+import { DB_ADMIN_USER, DB_ADMIN_PASW, PRIVATE_KEY } from '../config/env-vars'
+import  Cryptr  from 'cryptr'
 
 import type { Database } from "sqlite3";
 
@@ -51,6 +53,12 @@ interface Row {
   [key: string]: any;
 }
 
+interface UserRecord {
+  id: number,
+  name: string,
+  password: string
+}
+
 async function InitializeDB(db: Database): Promise<void> {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
@@ -77,7 +85,35 @@ async function InitializeDB(db: Database): Promise<void> {
                   reject(err);
                   return;
                 }
-                resolve(); // No error, table created successfully
+              }
+            );
+            db.run(
+              "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, password TEXT)",
+              (err) => {
+                if (err) {
+                  logger.error("Error creating query:", err.message);
+                  reject(err);
+                  return;
+                }
+                if(!DB_ADMIN_PASW || !DB_ADMIN_USER || !PRIVATE_KEY) {
+                  logger.error("The encryption private key is empty and/or the default DB admin credentials are not set, neither.");
+                  reject(err);
+                  return;
+                }
+                const cryptr = new Cryptr(PRIVATE_KEY);
+                const password = cryptr.encrypt(DB_ADMIN_PASW);
+                db.run(
+                  `INSERT INTO users (name, password) VALUES ('${DB_ADMIN_USER}', '${password}')`,
+                  (err) => {
+                    if (err) {
+                      logger.error(`Error creating user ${DB_ADMIN_USER}:`, err.message);
+                      reject(err);
+                      return;
+                    } else {
+                      resolve(); // No error, table created successfully
+                    }
+                  }
+                );
               }
             );
           } else {
@@ -498,20 +534,41 @@ function exportDatabaseToSQL(
   });
 }
 
+function fetchUser(
+    db: Database, username: string
+): Promise<{ bool: boolean; data: UserRecord }> {
+  return new Promise((resolve, reject) => {
+    db.get(
+        `SELECT id, name, password FROM users WHERE name='${username}'`,
+        function (error, row: any) {
+          if (error) {
+            logger.error(`Error while getting user: ${username}`);
+            logger.error(error.message);
+            reject({ bool: false, error: error.message });
+            return;
+          } else {
+            resolve({ bool: true, data: row });
+          }
+        }
+    );
+  });
+}
+
 export default {
-  checkColumnHasDefault,
-  fetchAllTables,
-  fetchTable,
-  fetchTableInfo,
-  fetchAllTableInfo,
-  deleteFromTable,
-  fetchRecord,
-  runQuery,
-  runSelectQuery,
   InitializeDB,
-  insertQuery,
-  fetchQueries,
-  fetchTableForeignKeys,
-  fetchFK,
+  checkColumnHasDefault,
+  deleteFromTable,
   exportDatabaseToSQL,
+  fetchAllTableInfo,
+  fetchAllTables,
+  fetchFK,
+  fetchQueries,
+  fetchRecord,
+  fetchTable,
+  fetchTableForeignKeys,
+  fetchTableInfo,
+  fetchUser,
+  insertQuery,
+  runQuery,
+  runSelectQuery
 };

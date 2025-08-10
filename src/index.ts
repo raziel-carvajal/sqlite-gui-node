@@ -3,9 +3,11 @@ import bodyParser from "body-parser";
 import path from "path";
 import databaseFunctions from "./Utils/databaseFunctions";
 import logger from "./Utils/logger";
+import { loginRoutes } from "./routes/login"
 import tableRoutes from "./routes/tables";
 import type { Database } from "sqlite3";
-import { EXPRESS_APP_PATH } from './config/env-vars';
+import { EXPRESS_APP_PATH, EXPRESS_SESSION_SECRET } from './config/env-vars';
+import { isUserLoggedIn } from './middlewares';
 
 const app = express();
 
@@ -56,39 +58,56 @@ export function SqliteGuiNodeMiddleware(app: any, db: Database) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
       await databaseFunctions.InitializeDB(db);
+      const session = require('express-session');
       app.set("view engine", "ejs");
       app.set("views", path.join(__dirname, "../views"));
 
       app.use(bodyParser.urlencoded({ extended: false }));
       app.use(express.static(path.join(__dirname, "../public")));
       app.use(bodyParser.json());
+      app.use(session({
+        secret: EXPRESS_SESSION_SECRET,
+        resave: true,
+        saveUninitialized: false
+      }));
 
       // Routes
-      app.get(`${EXPRESS_APP_PATH}/query`, (req: Request, res: Response) => {
+      app.get(`${EXPRESS_APP_PATH}/query`, isUserLoggedIn, (req: Request, res: Response) => {
         res.render("query", { title: "Query Page", path: EXPRESS_APP_PATH });
       });
 
-      app.get(EXPRESS_APP_PATH, (req: Request, res: Response) => {
+      app.get(EXPRESS_APP_PATH, isUserLoggedIn, (req: Request, res: Response) => {
         res.render("index", { path: EXPRESS_APP_PATH });
       });
 
-      app.get(`${EXPRESS_APP_PATH}/createtable`, (req: Request, res: Response) => {
+      app.get(`${EXPRESS_APP_PATH}/createtable`, isUserLoggedIn, (req: Request, res: Response) => {
         res.render("createTable", { title: "Create Table Page", path: EXPRESS_APP_PATH });
       });
 
-      app.get(`${EXPRESS_APP_PATH}/insert/:table`, (req: Request, res: Response) => {
+      app.get(`${EXPRESS_APP_PATH}/insert/:table`, isUserLoggedIn, (req: Request, res: Response) => {
         const tableName = req.params.table;
         res.render("insert", { tableName, path: EXPRESS_APP_PATH });
       });
 
-      app.get(`${EXPRESS_APP_PATH}/edit/:table/:label/:id`, (req: Request, res: Response) => {
+      app.get(`${EXPRESS_APP_PATH}/edit/:table/:label/:id`, isUserLoggedIn, (req: Request, res: Response) => {
         const tableName = req.params.table;
         const id = req.params.id;
         res.render("edit", { tableName, id, path: EXPRESS_APP_PATH });
       });
-      app.use(`${EXPRESS_APP_PATH}/api/tables`, tableRoutes(db)); // Add table routes
-      app.get(`${EXPRESS_APP_PATH}/home`, (req: Request, res: Response) => {
+
+      app.use(`${EXPRESS_APP_PATH}/api/tables`, isUserLoggedIn, tableRoutes(db)); // Add table routes
+      app.get(`${EXPRESS_APP_PATH}/home`, isUserLoggedIn, (req: Request, res: Response) => {
         res.render("index", { path: EXPRESS_APP_PATH });
+      });
+
+      app.use(`${EXPRESS_APP_PATH}/login`, loginRoutes(db));
+      app.get(`${EXPRESS_APP_PATH}/login`, (req: Request, res: Response)=> {
+        // @ts-ignore
+        if(req.session.user){
+          res.redirect(`${EXPRESS_APP_PATH}/home`);
+        } else {
+          res.render("login", { path: EXPRESS_APP_PATH, error: null });
+        }
       });
 
       next(); // Proceed to the next middleware/route handler

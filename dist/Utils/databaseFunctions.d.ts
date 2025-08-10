@@ -19,6 +19,11 @@ interface FetchTableForeignKeysResult {
     data?: ForeignKeyInfo[];
     error?: string;
 }
+interface UserRecord {
+    id: number;
+    name: string;
+    password: string;
+}
 declare function InitializeDB(db: Database): Promise<void>;
 declare function insertQuery(db: Database, name: string, sqlStatement: string): Promise<{
     bool: boolean;
@@ -75,21 +80,26 @@ declare function exportDatabaseToSQL(db: Database): Promise<{
     filePath?: string;
     error?: string;
 }>;
+declare function fetchUser(db: Database, username: string): Promise<{
+    bool: boolean;
+    data: UserRecord;
+}>;
 declare const _default: {
+    InitializeDB: typeof InitializeDB;
     checkColumnHasDefault: typeof checkColumnHasDefault;
-    fetchAllTables: typeof fetchAllTables;
-    fetchTable: typeof fetchTable;
-    fetchTableInfo: typeof fetchTableInfo;
-    fetchAllTableInfo: typeof fetchAllTableInfo;
     deleteFromTable: typeof deleteFromTable;
+    exportDatabaseToSQL: typeof exportDatabaseToSQL;
+    fetchAllTableInfo: typeof fetchAllTableInfo;
+    fetchAllTables: typeof fetchAllTables;
+    fetchFK: typeof fetchFK;
+    fetchQueries: typeof fetchQueries;
     fetchRecord: typeof fetchRecord;
+    fetchTable: typeof fetchTable;
+    fetchTableForeignKeys: typeof fetchTableForeignKeys;
+    fetchTableInfo: typeof fetchTableInfo;
+    fetchUser: typeof fetchUser;
+    insertQuery: typeof insertQuery;
     runQuery: typeof runQuery;
     runSelectQuery: typeof runSelectQuery;
-    InitializeDB: typeof InitializeDB;
-    insertQuery: typeof insertQuery;
-    fetchQueries: typeof fetchQueries;
-    fetchTableForeignKeys: typeof fetchTableForeignKeys;
-    fetchFK: typeof fetchFK;
-    exportDatabaseToSQL: typeof exportDatabaseToSQL;
 };
 export default _default;
