@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-// import bodyParser from "body-parser";
+import bodyParser from "body-parser";
 import path from "path";
 import databaseFunctions from "./Utils/databaseFunctions";
 import logger from "./Utils/logger";
@@ -14,9 +14,9 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 
-// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "../public")));
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
 
 // Routes
 app.get(`${EXPRESS_APP_PATH}/query`, (req, res) => {
