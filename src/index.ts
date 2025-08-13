@@ -54,17 +54,20 @@ export async function SqliteGuiNode(db: Database, port = 8080) {
 }
 
 // SqliteGuiNode as middleware
-export function SqliteGuiNodeMiddleware(app: any, db: Database) {
+export function SqliteGuiNodeMiddleware(app: any, db: Database, appViews: string | undefined) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
       await databaseFunctions.InitializeDB(db);
-      const session = require('express-session');
       app.set("view engine", "ejs");
-      app.set("views", path.join(__dirname, "../views"));
+      const session = require('express-session'),
+        views = [ path.join(__dirname, "../views") ];
+      if (appViews) {
+        views.push(appViews);
+      }
+      app.set("views", views);
 
-      // app.use(bodyParser.urlencoded({ extended: false }));
       app.use(express.static(path.join(__dirname, "../public")));
-      // app.use(bodyParser.json());
+
       app.use(session({
         secret: EXPRESS_SESSION_SECRET,
         resave: true,
